@@ -27,6 +27,12 @@
 %code {
 #include "Driver.hh"
 yy::parser::symbol_type yylex(MLE::Driver& ProgramDriver);
+
+inline void CLEAN(MLE::Driver& ProgramDriver) {
+    ProgramDriver.Range.Start.reset();
+    ProgramDriver.Range.End.reset();
+}
+
 }
 
 %token NUM
@@ -42,6 +48,8 @@ yy::parser::symbol_type yylex(MLE::Driver& ProgramDriver);
 %token PRINT
 %token LIST
 %token CHG
+%token DEL
+%token QUICK_DEL
 
 %type<size_t> NUM
 
@@ -52,7 +60,7 @@ entries:    entries entry
 ;
 
 entry:  comms
-|   error                       { yyclearin; yyerrok; }
+|   error                       { CLEAN(ProgramDriver); yyclearin; yyerrok; }
 ;
 
 comms: comms comm
@@ -65,9 +73,11 @@ comm:   WRITE                   {   // =========================================
                                     yyerrok;
                                 }
 |       NUM INSERT              {   // =====================================================
+                                    CLEAN(ProgramDriver);
                                     char line[256];
                                     
                                     while (true) {
+                                        std::cout << "-> ";
                                         std::cin.getline(line, 256);
                                         if (!std::strcmp(line, ".")) {
                                             break;
@@ -89,9 +99,13 @@ comm:   WRITE                   {   // =========================================
                                     yyerrok;
                                 }
 |       range PRINT             {   // =====================================================
+                                    auto RangeStart_ = ProgramDriver.Range.Start.value();
+                                    auto RangeEnd_ = ProgramDriver.Range.End.value();
+                                    CLEAN(ProgramDriver);
+
                                     for (
-                                            size_t i = ProgramDriver.Range.Start.value();
-                                            i <= ProgramDriver.Range.End.value();
+                                            size_t i = RangeStart_;
+                                            i <= RangeEnd_;
                                             i++
                                     ) {
                                         try {
@@ -102,13 +116,30 @@ comm:   WRITE                   {   // =========================================
                                             break;
                                         }
                                     }
-                                    ProgramDriver.Range.Start = std::nullopt;
-                                    ProgramDriver.Range.End = std::nullopt;
+                                    CLEAN(ProgramDriver);
+                                }
+|       range DEL               {   // =====================================================
+                                    auto RangeStart_ = ProgramDriver.Range.Start.value();
+                                    auto RangeEnd_ = ProgramDriver.Range.End.value();
+                                    CLEAN(ProgramDriver);
+                                    
+                                    if ((RangeStart_ - 1) >= ProgramDriver.ProgramState->MainBuffer->size()) {
+                                            std::cout << "Line " << RangeStart_ << " nonexistent\n";
+                                            break;
+                                    }
+                                    for (; RangeStart_ <= RangeEnd_; RangeStart_++) {
+                                        ProgramDriver.ProgramState->MainBuffer->erase(
+                                            ProgramDriver.ProgramState->MainBuffer->begin() + 
+                                            (RangeStart_ - 1));
+                                    }
+                                    ProgramDriver.ProgramState->NeedWarning = true;
                                 }
 |       APPEND                  {   // =====================================================
+                                    CLEAN(ProgramDriver);
                                     char line[256];
                                     
                                     while (true) {
+                                        std::cout << "-> ";
                                         std::cin.getline(line, 256);
                                         if (!std::strcmp(line, ".")) {
                                             break;
@@ -126,15 +157,31 @@ comm:   WRITE                   {   // =========================================
                                     yyclearin;
                                     yyerrok;                                 
                                 }
-|       CHG NUM                 {   // =====================================================
+|       NUM CHG                 {   // =====================================================
+                                    CLEAN(ProgramDriver);
                                     char line[256];
+                                    std::cout << "-> ";
                                     std::cin.getline(line, 256);
                                     try {
-                                        ProgramDriver.ProgramState->MainBuffer->at($2 - 1) = line;
+                                        ProgramDriver.ProgramState->MainBuffer->at($1 - 1) = line;
                                         ProgramDriver.ProgramState->NeedWarning = true;
                                     } catch (...) { 
-                                        std::cout << "Line " << $2 << " nonexistent\n";
+                                        std::cout << "Line " << $1 << " nonexistent\n";
                                     }
+                                    yyclearin;
+                                    yyerrok;  
+                                }
+|       NUM QUICK_DEL           {   // =====================================================
+                                    CLEAN(ProgramDriver);
+                                    if ($1 > ProgramDriver.ProgramState->MainBuffer->size()) {
+                                        std::cout << "Line " << $1 << " nonexistent\n";
+                                    } else {
+                                        ProgramDriver.ProgramState->MainBuffer->erase(
+                                            ProgramDriver.ProgramState->MainBuffer->begin() +
+                                            $1 - 1);
+                                        ProgramDriver.ProgramState->NeedWarning = true;
+                                    }
+                                    CLEAN(ProgramDriver);
                                     yyclearin;
                                     yyerrok;  
                                 }
@@ -157,6 +204,7 @@ comm:   WRITE                   {   // =========================================
                                     } else {
                                         exit(0); 
                                     }
+                                    CLEAN(ProgramDriver);
                                     yyclearin;
                                     yyerrok;
                                 }
@@ -165,6 +213,7 @@ comm:   WRITE                   {   // =========================================
                                     for (auto str: *(ProgramDriver.ProgramState->MainBuffer)) {
                                         std::cout << i++ << "\t" << str << '\n';
                                     }
+                                    CLEAN(ProgramDriver);
                                 }
 ;
 
@@ -174,18 +223,20 @@ range: range_literal COMMA range_literal
 range_literal: RANGE_WILDCARD   {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = 1;
+                                        ProgramDriver.Range.End.reset();
                                     } else if (!ProgramDriver.Range.End.has_value()) {
                                         ProgramDriver.Range.End = ProgramDriver.ProgramState->MainBuffer->size();
                                     } else {
+                                        CLEAN(ProgramDriver);
                                         std::cout << "Logic error (RANGE_WILDCARD)\n";
                                         while (true) {
-                                            std::cout << "Quit without saving? [y/n] ";
+                                            std::cout << "Quit or continue in an undefined state? [q/c] ";
                                             char Response;
                                             
                                             std::cin >> Response;
-                                            if (Response == 'n') {
+                                            if (Response == 'c') {
                                                 break;
-                                            } else if (Response == 'y') {
+                                            } else if (Response == 'q') {
                                                 exit(-1);
                                             } else {
                                                 continue;
@@ -196,18 +247,20 @@ range_literal: RANGE_WILDCARD   {   // =========================================
 |   NUM                         {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = $1;
+                                        ProgramDriver.Range.End.reset();
                                     } else if (!ProgramDriver.Range.End.has_value()) {
                                         ProgramDriver.Range.End = $1;
                                     } else {
                                         std::cout << "Logic error (NUM)\n";
                                         while (true) {
-                                            std::cout << "Quit without saving? [y/n] ";
+                                            CLEAN(ProgramDriver);
+                                            std::cout << "Quit or continue in an undefined state? [q/c] ";
                                             char Response;
                                             
                                             std::cin >> Response;
-                                            if (Response == 'n') {
+                                            if (Response == 'c') {
                                                 break;
-                                            } else if (Response == 'y') {
+                                            } else if (Response == 'q') {
                                                 exit(-2);
                                             } else {
                                                 continue;

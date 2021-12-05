@@ -23,21 +23,25 @@ yy::parser::symbol_type make_NUM (const std::string &s);
 
 [0-9]+      { return yy::parser::make_NUM(std::stoi(yytext));   }
 
-q           { return yy::parser::make_QUIT();                   }
+\.quit|q    { return yy::parser::make_QUIT();                   }
 
-a           { return yy::parser::make_APPEND();                 }
+\.add|a     { return yy::parser::make_APPEND();                 }
 
-i           { return yy::parser::make_INSERT();                 }
+\.insert|i  { return yy::parser::make_INSERT();                 }
 
-c           { return yy::parser::make_CHG();                    }
+\.chg|c     { return yy::parser::make_CHG();                    }
 
-l           { return yy::parser::make_LIST();                   }
+\.list|l    { return yy::parser::make_LIST();                   }
 
 V           { std::cout << "WARNING: Unimplemented\n";          }
 
-w           { return yy::parser::make_WRITE();                  }
+\.write|w   { return yy::parser::make_WRITE();                  }
 
-p           { return yy::parser::make_PRINT();                  }
+\.print|p   { return yy::parser::make_PRINT();                  }
+
+\.del|d     { return yy::parser::make_DEL();                    }
+
+\.x|x       { return yy::parser::make_QUICK_DEL();              }
 
 "$"         { return yy::parser::make_RANGE_WILDCARD();         }
 
