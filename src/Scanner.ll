@@ -19,27 +19,31 @@ yy::parser::symbol_type make_NUM (const std::string &s);
 %%
 
 
-[ \n\t]+    { /* do nuffin */                       }
+[ \n\t]+    { /* do nuffin */                                   }
 
-[0-9]+      { return yy::parser::make_NUM(std::stoi(yytext)); }
+[0-9]+      { return yy::parser::make_NUM(std::stoi(yytext));   }
 
-q           { return yy::parser::make_QUIT();       }
+q           { return yy::parser::make_QUIT();                   }
 
-a           { return yy::parser::make_APPEND();     }
+a           { return yy::parser::make_APPEND();                 }
 
-i           { return yy::parser::make_INSERT();     }
+i           { return yy::parser::make_INSERT();                 }
 
-V           { /* ignore */        }
+c           { return yy::parser::make_CHG();                    }
 
-w           { return yy::parser::make_WRITE();      }
+l           { return yy::parser::make_LIST();                   }
 
-p           { return yy::parser::make_PRINT();      }
+V           { std::cout << "WARNING: Unimplemented\n";          }
 
-"$"         { return yy::parser::make_RANGE_WILDCARD(); }
+w           { return yy::parser::make_WRITE();                  }
 
-,           { return yy::parser::make_COMMA();      }
+p           { return yy::parser::make_PRINT();                  }
 
-"@"         { std::cout << "Cursor" << std::endl;   }
+"$"         { return yy::parser::make_RANGE_WILDCARD();         }
+
+,           { return yy::parser::make_COMMA();                  }
+
+"@"         { std::cout << "Cursor" << std::endl;               }
 
 . {
     std::cout << "?\n";
@@ -48,13 +52,13 @@ p           { return yy::parser::make_PRINT();      }
 %%
 
 yy::parser::symbol_type
-make_NUM (const std::string &s)
+make_NUM(const std::string &s)
 {
     errno = 0;
     long n = strtol(s.c_str(), NULL, 10);
     if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE)) {
-        std::cout << "Something with the number lmao\n";
+        std::cout << "Bad number\n";
     }
 
-    return yy::parser::make_NUM((int) n);
+    return yy::parser::make_NUM((size_t) n);
 }

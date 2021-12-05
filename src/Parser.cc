@@ -520,20 +520,20 @@ namespace yy {
           switch (yyn)
             {
   case 5: // entry: error
-#line 53 "Parser.yy"
+#line 55 "Parser.yy"
                                 { yyclearin; yyerrok; }
 #line 526 "Parser.cc"
     break;
 
   case 7: // comms: %empty
-#line 57 "Parser.yy"
+#line 59 "Parser.yy"
                                 { /* skip */ }
 #line 532 "Parser.cc"
     break;
 
   case 8: // comm: WRITE
-#line 60 "Parser.yy"
-                                { 
+#line 62 "Parser.yy"
+                                {   // =====================================================
                                     ProgramDriver.Save();
                                     yyclearin;
                                     yyerrok;
@@ -542,8 +542,8 @@ namespace yy {
     break;
 
   case 9: // comm: NUM INSERT
-#line 65 "Parser.yy"
-                                {
+#line 67 "Parser.yy"
+                                {   // =====================================================
                                     char line[256];
                                     
                                     while (true) {
@@ -571,8 +571,8 @@ namespace yy {
     break;
 
   case 10: // comm: range PRINT
-#line 89 "Parser.yy"
-                                {
+#line 91 "Parser.yy"
+                                {   // =====================================================
                                     for (
                                             size_t i = ProgramDriver.Range.Start.value();
                                             i <= ProgramDriver.Range.End.value();
@@ -593,8 +593,8 @@ namespace yy {
     break;
 
   case 11: // comm: APPEND
-#line 106 "Parser.yy"
-                                {
+#line 108 "Parser.yy"
+                                {   // =====================================================
                                     char line[256];
                                     
                                     while (true) {
@@ -618,13 +618,30 @@ namespace yy {
 #line 619 "Parser.cc"
     break;
 
-  case 12: // comm: QUIT
-#line 127 "Parser.yy"
+  case 12: // comm: CHG NUM
+#line 129 "Parser.yy"
+                                {   // =====================================================
+                                    char line[256];
+                                    std::cin.getline(line, 256);
+                                    try {
+                                        ProgramDriver.ProgramState->MainBuffer->at(yystack_[0].value.as < size_t > () - 1) = line;
+                                        ProgramDriver.ProgramState->NeedWarning = true;
+                                    } catch (...) { 
+                                        std::cout << "Line " << yystack_[0].value.as < size_t > () << " nonexistent\n";
+                                    }
+                                    yyclearin;
+                                    yyerrok;  
+                                }
+#line 636 "Parser.cc"
+    break;
+
+  case 13: // comm: QUIT
+#line 141 "Parser.yy"
                                 {   // =====================================================
                                     // quirks: extra newline for the answer!
                                     if (ProgramDriver.ProgramState->NeedWarning) {
                                         while (true) {
-                                            std::cout << "Save without quitting? [y/n] ";
+                                            std::cout << "Quit without saving? [y/n] ";
                                             char Response;
                                             
                                             std::cin >> Response;
@@ -635,7 +652,6 @@ namespace yy {
                                             } else {
                                                 continue;
                                             }
-                                            
                                         }
                                     } else {
                                         exit(0); 
@@ -643,42 +659,76 @@ namespace yy {
                                     yyclearin;
                                     yyerrok;
                                 }
-#line 647 "Parser.cc"
+#line 663 "Parser.cc"
     break;
 
-  case 14: // range_literal: RANGE_WILDCARD
-#line 155 "Parser.yy"
-                                {
+  case 14: // comm: LIST
+#line 163 "Parser.yy"
+                                {   // =====================================================
+                                    size_t i = 1;
+                                    for (auto str: *(ProgramDriver.ProgramState->MainBuffer)) {
+                                        std::cout << i++ << "\t" << str << '\n';
+                                    }
+                                }
+#line 674 "Parser.cc"
+    break;
+
+  case 16: // range_literal: RANGE_WILDCARD
+#line 174 "Parser.yy"
+                                {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = 1;
                                     } else if (!ProgramDriver.Range.End.has_value()) {
                                         ProgramDriver.Range.End = ProgramDriver.ProgramState->MainBuffer->size();
                                     } else {
-                                        std::cout << "Logic error (NUM)\n";
-                                        exit(-1);
+                                        std::cout << "Logic error (RANGE_WILDCARD)\n";
+                                        while (true) {
+                                            std::cout << "Quit without saving? [y/n] ";
+                                            char Response;
+                                            
+                                            std::cin >> Response;
+                                            if (Response == 'n') {
+                                                break;
+                                            } else if (Response == 'y') {
+                                                exit(-1);
+                                            } else {
+                                                continue;
+                                            }
+                                        }
                                     }
                                 }
-#line 662 "Parser.cc"
+#line 701 "Parser.cc"
     break;
 
-  case 15: // range_literal: NUM
-#line 165 "Parser.yy"
-                                {
-                                    // std::cout << "Range is: " << ProgramDriver.Range.Start.value() << " until " << ProgramDriver.Range.End.value() << '\n';
+  case 17: // range_literal: NUM
+#line 196 "Parser.yy"
+                                {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = yystack_[0].value.as < size_t > ();
                                     } else if (!ProgramDriver.Range.End.has_value()) {
                                         ProgramDriver.Range.End = yystack_[0].value.as < size_t > ();
                                     } else {
                                         std::cout << "Logic error (NUM)\n";
-                                        exit(-1);
+                                        while (true) {
+                                            std::cout << "Quit without saving? [y/n] ";
+                                            char Response;
+                                            
+                                            std::cin >> Response;
+                                            if (Response == 'n') {
+                                                break;
+                                            } else if (Response == 'y') {
+                                                exit(-2);
+                                            } else {
+                                                continue;
+                                            }
+                                        }
                                     }
                                 }
-#line 678 "Parser.cc"
+#line 728 "Parser.cc"
     break;
 
 
-#line 682 "Parser.cc"
+#line 732 "Parser.cc"
 
             default:
               break;
@@ -1033,62 +1083,67 @@ namespace yy {
   const signed char
   parser::yypact_[] =
   {
-      -9,     0,    -9,    -9,    -9,     6,    -8,    -9,    -9,    -9,
-      -9,    -9,    -6,     8,    -9,    -9,    -1,    -9,    -9
+      -9,     0,    -9,    -9,    -9,    10,    -8,    -9,    -9,    -9,
+      -9,    -9,     4,    -9,    -4,     5,    -9,    -9,    -9,    -1,
+      -9,    -9
   };
 
   const signed char
   parser::yydefact_[] =
   {
-       3,     0,     1,     5,     2,     4,    15,    14,     8,    12,
-      11,     6,     0,     0,     9,    10,     0,    15,    13
+       3,     0,     1,     5,     2,     4,    17,    16,     8,    13,
+      11,    14,     0,     6,     0,     0,     9,    12,    10,     0,
+      17,    15
   };
 
   const signed char
   parser::yypgoto_[] =
   {
-      -9,    -9,    -9,    -9,    -9,    -9,    -3
+      -9,    -9,    -9,    -9,    -9,    -9,    -2
   };
 
   const signed char
   parser::yydefgoto_[] =
   {
-       0,     1,     4,     5,    11,    12,    13
+       0,     1,     4,     5,    13,    14,    15
   };
 
   const signed char
   parser::yytable_[] =
   {
-       2,     3,    17,    -7,    14,     7,    -7,    15,    -7,     6,
-      -7,    -7,     7,    18,     8,    16,     9,    10
+       2,     3,    20,    -7,    16,     7,    -7,    17,    -7,    18,
+      -7,    -7,    19,     6,    -7,    -7,     7,    21,     8,     0,
+       9,    10,     0,     0,    11,    12
   };
 
   const signed char
   parser::yycheck_[] =
   {
-       0,     1,     3,     3,    12,     6,     6,    13,     8,     3,
-      10,    11,     6,    16,     8,     7,    10,    11
+       0,     1,     3,     3,    12,     6,     6,     3,     8,    13,
+      10,    11,     7,     3,    14,    15,     6,    19,     8,    -1,
+      10,    11,    -1,    -1,    14,    15
   };
 
   const signed char
   parser::yystos_[] =
   {
-       0,    15,     0,     1,    16,    17,     3,     6,     8,    10,
-      11,    18,    19,    20,    12,    13,     7,     3,    20
+       0,    17,     0,     1,    18,    19,     3,     6,     8,    10,
+      11,    14,    15,    20,    21,    22,    12,     3,    13,     7,
+       3,    22
   };
 
   const signed char
   parser::yyr1_[] =
   {
-       0,    14,    15,    15,    16,    16,    17,    17,    18,    18,
-      18,    18,    18,    19,    20,    20
+       0,    16,    17,    17,    18,    18,    19,    19,    20,    20,
+      20,    20,    20,    20,    20,    21,    22,    22
   };
 
   const signed char
   parser::yyr2_[] =
   {
        0,     2,     2,     0,     1,     1,     2,     0,     1,     2,
-       2,     1,     1,     3,     1,     1
+       2,     1,     2,     1,     1,     3,     1,     1
   };
 
 
@@ -1100,8 +1155,8 @@ namespace yy {
   {
   "\"end of file\"", "error", "\"invalid token\"", "NUM", "CMD", "TEXT",
   "RANGE_WILDCARD", "COMMA", "WRITE", "NEWLINE", "QUIT", "APPEND",
-  "INSERT", "PRINT", "$accept", "entries", "entry", "comms", "comm",
-  "range", "range_literal", YY_NULLPTR
+  "INSERT", "PRINT", "LIST", "CHG", "$accept", "entries", "entry", "comms",
+  "comm", "range", "range_literal", YY_NULLPTR
   };
 #endif
 
@@ -1110,8 +1165,8 @@ namespace yy {
   const unsigned char
   parser::yyrline_[] =
   {
-       0,    48,    48,    49,    52,    53,    56,    57,    60,    65,
-      89,   106,   127,   152,   155,   165
+       0,    50,    50,    51,    54,    55,    58,    59,    62,    67,
+      91,   108,   129,   141,   163,   171,   174,   196
   };
 
   void
@@ -1143,6 +1198,6 @@ namespace yy {
 
 
 } // yy
-#line 1147 "Parser.cc"
+#line 1202 "Parser.cc"
 
-#line 178 "Parser.yy"
+#line 219 "Parser.yy"

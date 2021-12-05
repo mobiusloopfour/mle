@@ -40,6 +40,8 @@ yy::parser::symbol_type yylex(MLE::Driver& ProgramDriver);
 %token APPEND
 %token INSERT
 %token PRINT
+%token LIST
+%token CHG
 
 %type<size_t> NUM
 
@@ -57,12 +59,12 @@ comms: comms comm
 |   %empty                      { /* skip */ }
 ;
 
-comm:   WRITE                   { 
+comm:   WRITE                   {   // =====================================================
                                     ProgramDriver.Save();
                                     yyclearin;
                                     yyerrok;
                                 }
-|       NUM INSERT              {
+|       NUM INSERT              {   // =====================================================
                                     char line[256];
                                     
                                     while (true) {
@@ -86,7 +88,7 @@ comm:   WRITE                   {
                                     yyclearin;
                                     yyerrok;
                                 }
-|       range PRINT             {
+|       range PRINT             {   // =====================================================
                                     for (
                                             size_t i = ProgramDriver.Range.Start.value();
                                             i <= ProgramDriver.Range.End.value();
@@ -103,7 +105,7 @@ comm:   WRITE                   {
                                     ProgramDriver.Range.Start = std::nullopt;
                                     ProgramDriver.Range.End = std::nullopt;
                                 }
-|       APPEND                  {
+|       APPEND                  {   // =====================================================
                                     char line[256];
                                     
                                     while (true) {
@@ -124,11 +126,23 @@ comm:   WRITE                   {
                                     yyclearin;
                                     yyerrok;                                 
                                 }
+|       CHG NUM                 {   // =====================================================
+                                    char line[256];
+                                    std::cin.getline(line, 256);
+                                    try {
+                                        ProgramDriver.ProgramState->MainBuffer->at($2 - 1) = line;
+                                        ProgramDriver.ProgramState->NeedWarning = true;
+                                    } catch (...) { 
+                                        std::cout << "Line " << $2 << " nonexistent\n";
+                                    }
+                                    yyclearin;
+                                    yyerrok;  
+                                }
 |       QUIT                    {   // =====================================================
                                     // quirks: extra newline for the answer!
                                     if (ProgramDriver.ProgramState->NeedWarning) {
                                         while (true) {
-                                            std::cout << "Save without quitting? [y/n] ";
+                                            std::cout << "Quit without saving? [y/n] ";
                                             char Response;
                                             
                                             std::cin >> Response;
@@ -139,7 +153,6 @@ comm:   WRITE                   {
                                             } else {
                                                 continue;
                                             }
-                                            
                                         }
                                     } else {
                                         exit(0); 
@@ -147,32 +160,60 @@ comm:   WRITE                   {
                                     yyclearin;
                                     yyerrok;
                                 }
+|       LIST                    {   // =====================================================
+                                    size_t i = 1;
+                                    for (auto str: *(ProgramDriver.ProgramState->MainBuffer)) {
+                                        std::cout << i++ << "\t" << str << '\n';
+                                    }
+                                }
 ;
 
 range: range_literal COMMA range_literal
 ;
 
-range_literal: RANGE_WILDCARD   {
+range_literal: RANGE_WILDCARD   {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = 1;
                                     } else if (!ProgramDriver.Range.End.has_value()) {
                                         ProgramDriver.Range.End = ProgramDriver.ProgramState->MainBuffer->size();
                                     } else {
-                                        std::cout << "Logic error (NUM)\n";
-                                        exit(-1);
+                                        std::cout << "Logic error (RANGE_WILDCARD)\n";
+                                        while (true) {
+                                            std::cout << "Quit without saving? [y/n] ";
+                                            char Response;
+                                            
+                                            std::cin >> Response;
+                                            if (Response == 'n') {
+                                                break;
+                                            } else if (Response == 'y') {
+                                                exit(-1);
+                                            } else {
+                                                continue;
+                                            }
+                                        }
                                     }
                                 }
-|   NUM                         {
-                                    // std::cout << "Range is: " << ProgramDriver.Range.Start.value() << " until " << ProgramDriver.Range.End.value() << '\n';
+|   NUM                         {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = $1;
                                     } else if (!ProgramDriver.Range.End.has_value()) {
                                         ProgramDriver.Range.End = $1;
                                     } else {
                                         std::cout << "Logic error (NUM)\n";
-                                        exit(-1);
+                                        while (true) {
+                                            std::cout << "Quit without saving? [y/n] ";
+                                            char Response;
+                                            
+                                            std::cin >> Response;
+                                            if (Response == 'n') {
+                                                break;
+                                            } else if (Response == 'y') {
+                                                exit(-2);
+                                            } else {
+                                                continue;
+                                            }
+                                        }
                                     }
                                 }
 ;
-
 %%

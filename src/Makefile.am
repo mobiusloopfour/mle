@@ -1,5 +1,10 @@
-AM_CFLAGS = -W -Wall -Wextra -std=gnu17
-AM_CXXFLAGS = -W -Wall -Wextra -std=c++20 -Wno-sign-compare -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-parameter
+AM_CFLAGS = -W -Wall -Wextra -std=gnu17 -O2
+AM_CXXFLAGS = \
+    -W -Wall -Wextra \
+    -std=c++20 -Wno-sign-compare \
+    -Wno-unneeded-internal-declaration \
+    -Wno-unused-function -Wno-unused-parameter \
+    -O2
 
 noinst_LIBRARIES = libmleparse.a
 

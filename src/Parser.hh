@@ -445,7 +445,9 @@ namespace yy {
     QUIT = 10,                     // QUIT
     APPEND = 11,                   // APPEND
     INSERT = 12,                   // INSERT
-    PRINT = 13                     // PRINT
+    PRINT = 13,                    // PRINT
+    LIST = 14,                     // LIST
+    CHG = 15                       // CHG
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -462,7 +464,7 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 14, ///< Number of tokens.
+        YYNTOKENS = 16, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -478,13 +480,15 @@ namespace yy {
         S_APPEND = 11,                           // APPEND
         S_INSERT = 12,                           // INSERT
         S_PRINT = 13,                            // PRINT
-        S_YYACCEPT = 14,                         // $accept
-        S_entries = 15,                          // entries
-        S_entry = 16,                            // entry
-        S_comms = 17,                            // comms
-        S_comm = 18,                             // comm
-        S_range = 19,                            // range
-        S_range_literal = 20                     // range_literal
+        S_LIST = 14,                             // LIST
+        S_CHG = 15,                              // CHG
+        S_YYACCEPT = 16,                         // $accept
+        S_entries = 17,                          // entries
+        S_entry = 18,                            // entry
+        S_comms = 19,                            // comms
+        S_comm = 20,                             // comm
+        S_range = 21,                            // range
+        S_range_literal = 22                     // range_literal
       };
     };
 
@@ -942,6 +946,36 @@ switch (yykind)
         return symbol_type (token::PRINT);
       }
 #endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_LIST ()
+      {
+        return symbol_type (token::LIST);
+      }
+#else
+      static
+      symbol_type
+      make_LIST ()
+      {
+        return symbol_type (token::LIST);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_CHG ()
+      {
+        return symbol_type (token::CHG);
+      }
+#else
+      static
+      symbol_type
+      make_CHG ()
+      {
+        return symbol_type (token::CHG);
+      }
+#endif
 
 
     class context
@@ -1270,7 +1304,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 17,     ///< Last index in yytable_.
+      yylast_ = 25,     ///< Last index in yytable_.
       yynnts_ = 7,  ///< Number of nonterminal symbols.
       yyfinal_ = 2 ///< Termination state number.
     };
@@ -1400,7 +1434,7 @@ switch (yykind)
 
 
 } // yy
-#line 1404 "Parser.hh"
+#line 1438 "Parser.hh"
 
 
 

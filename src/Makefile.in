@@ -296,8 +296,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = -W -Wall -Wextra -std=gnu17
-AM_CXXFLAGS = -W -Wall -Wextra -std=c++20 -Wno-sign-compare -Wno-unneeded-internal-declaration -Wno-unused-function -Wno-unused-parameter
+AM_CFLAGS = -W -Wall -Wextra -std=gnu17 -O2
+AM_CXXFLAGS = \
+    -W -Wall -Wextra \
+    -std=c++20 -Wno-sign-compare \
+    -Wno-unneeded-internal-declaration \
+    -Wno-unused-function -Wno-unused-parameter \
+    -O2
+
 noinst_LIBRARIES = libmleparse.a
 libmleparse_a_SOURCES = \
 	Parser.yy Scanner.ll
@@ -324,9 +330,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/Makefile
+	  $(AUTOMAKE) --gnu src/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
