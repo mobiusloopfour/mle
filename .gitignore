@@ -1,18 +1,15 @@
 # http://www.gnu.org/software/automake
 
-Makefile.in
-/ar-lib
-/mdate-sh
-/py-compile
-/test-driver
-/ylwrap
-
 *~
 
 testfile.txt
 
+Makefile
+
 mle
 *.a
+
+*.log
 
 # http://www.gnu.org/software/autoconf
 
@@ -20,18 +17,10 @@ autom4te.cache
 /autoscan.log
 /autoscan-*.log
 /aclocal.m4
-/compile
-/config.guess
-/config.h.in
-/config.log
 /config.status
-/config.sub
-/configure
 /configure.scan
-/depcomp
-/install-sh
-/missing
 /stamp-h1
+/config.log
 
 # https://www.gnu.org/software/libtool/
 
@@ -49,8 +38,6 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4(LIBDL)
 
-Makefile
-src/Makefile
 *.o
 src/.deps
 src/test_become_daemon

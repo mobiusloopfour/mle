@@ -63,6 +63,28 @@ comm:   WRITE                   {
                                     yyerrok;
                                 }
 |       NUM INSERT              {
+                                    char line[256];
+                                    
+                                    while (true) {
+                                        std::cin.getline(line, 256);
+                                        if (!std::strcmp(line, ".")) {
+                                            break;
+                                        } else if (!std::strcmp(line, "\\n")) {
+                                            ProgramDriver.ProgramState->MainBuffer->push_back("\n");
+                                            continue;
+                                        } else if (!std::strcmp(line, "\\.")) {
+                                            ProgramDriver.ProgramState->MainBuffer->push_back(".");
+                                        } else if (std::strcmp(line, "\0")) {
+                                            ProgramDriver.ProgramState->MainBuffer->insert(
+                                                ProgramDriver.ProgramState->MainBuffer->begin() + $1 - 1,
+                                                line
+                                            );
+                                        }
+                                    }
+
+                                    ProgramDriver.ProgramState->NeedWarning = true;
+                                    yyclearin;
+                                    yyerrok;
                                 }
 |       range PRINT             {
                                     for (
@@ -71,7 +93,7 @@ comm:   WRITE                   {
                                             i++
                                     ) {
                                         try {
-                                            std::cout << i << ":\t" <<
+                                            std::cout << i << "\t" <<
                                                 ProgramDriver.ProgramState->MainBuffer->at(i - 1)
                                                 << "\n";
                                         } catch (...) {
