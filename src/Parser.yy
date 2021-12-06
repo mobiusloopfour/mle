@@ -120,6 +120,7 @@ comm:   WRITE                   {   // =========================================
                                 }
 |       range DEL               {   // =====================================================
                                     auto RangeStart_ = ProgramDriver.Range.Start.value();
+                                    auto x = RangeStart_;
                                     auto RangeEnd_ = ProgramDriver.Range.End.value();
                                     CLEAN(ProgramDriver);
                                     
@@ -127,10 +128,10 @@ comm:   WRITE                   {   // =========================================
                                             std::cout << "Line " << RangeStart_ << " nonexistent\n";
                                             break;
                                     }
+                                    auto b = ProgramDriver.ProgramState->MainBuffer->begin();
                                     for (; RangeStart_ <= RangeEnd_; RangeStart_++) {
-                                        ProgramDriver.ProgramState->MainBuffer->erase(
-                                            ProgramDriver.ProgramState->MainBuffer->begin() + 
-                                            (RangeStart_ - 1));
+                                        std::cout << "Line " << x << '\n';
+                                        ProgramDriver.ProgramState->MainBuffer->erase((b + 1) + (--x));
                                     }
                                     ProgramDriver.ProgramState->NeedWarning = true;
                                 }
@@ -245,11 +246,17 @@ range_literal: RANGE_WILDCARD   {   // =========================================
                                     }
                                 }
 |   NUM                         {   // =====================================================
+                                    size_t Correction = 1;
+                                    if (!$1) {
+                                        std::cout << "Correcting invalid null index to 1\n";
+                                    } else {
+                                        Correction = $1;
+                                    }
                                     if (!ProgramDriver.Range.Start.has_value()) {
-                                        ProgramDriver.Range.Start = $1;
+                                        ProgramDriver.Range.Start = Correction;
                                         ProgramDriver.Range.End.reset();
                                     } else if (!ProgramDriver.Range.End.has_value()) {
-                                        ProgramDriver.Range.End = $1;
+                                        ProgramDriver.Range.End = Correction;
                                     } else {
                                         std::cout << "Logic error (NUM)\n";
                                         while (true) {

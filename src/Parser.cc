@@ -607,6 +607,7 @@ namespace yy {
 #line 121 "Parser.yy"
                                 {   // =====================================================
                                     auto RangeStart_ = ProgramDriver.Range.Start.value();
+                                    auto x = RangeStart_;
                                     auto RangeEnd_ = ProgramDriver.Range.End.value();
                                     CLEAN(ProgramDriver);
                                     
@@ -614,18 +615,18 @@ namespace yy {
                                             std::cout << "Line " << RangeStart_ << " nonexistent\n";
                                             break;
                                     }
+                                    auto b = ProgramDriver.ProgramState->MainBuffer->begin();
                                     for (; RangeStart_ <= RangeEnd_; RangeStart_++) {
-                                        ProgramDriver.ProgramState->MainBuffer->erase(
-                                            ProgramDriver.ProgramState->MainBuffer->begin() + 
-                                            (RangeStart_ - 1));
+                                        std::cout << "Line " << x << '\n';
+                                        ProgramDriver.ProgramState->MainBuffer->erase((b + 1) + (--x));
                                     }
                                     ProgramDriver.ProgramState->NeedWarning = true;
                                 }
-#line 625 "Parser.cc"
+#line 626 "Parser.cc"
     break;
 
   case 12: // comm: APPEND
-#line 137 "Parser.yy"
+#line 138 "Parser.yy"
                                 {   // =====================================================
                                     CLEAN(ProgramDriver);
                                     char line[256];
@@ -649,11 +650,11 @@ namespace yy {
                                     yyclearin;
                                     yyerrok;                                 
                                 }
-#line 653 "Parser.cc"
+#line 654 "Parser.cc"
     break;
 
   case 13: // comm: NUM CHG
-#line 160 "Parser.yy"
+#line 161 "Parser.yy"
                                 {   // =====================================================
                                     CLEAN(ProgramDriver);
                                     char line[256];
@@ -668,11 +669,11 @@ namespace yy {
                                     yyclearin;
                                     yyerrok;  
                                 }
-#line 672 "Parser.cc"
+#line 673 "Parser.cc"
     break;
 
   case 14: // comm: NUM QUICK_DEL
-#line 174 "Parser.yy"
+#line 175 "Parser.yy"
                                 {   // =====================================================
                                     CLEAN(ProgramDriver);
                                     if (yystack_[1].value.as < size_t > () > ProgramDriver.ProgramState->MainBuffer->size()) {
@@ -687,11 +688,11 @@ namespace yy {
                                     yyclearin;
                                     yyerrok;  
                                 }
-#line 691 "Parser.cc"
+#line 692 "Parser.cc"
     break;
 
   case 15: // comm: QUIT
-#line 188 "Parser.yy"
+#line 189 "Parser.yy"
                                 {   // =====================================================
                                     // quirks: extra newline for the answer!
                                     if (ProgramDriver.ProgramState->NeedWarning) {
@@ -715,11 +716,11 @@ namespace yy {
                                     yyclearin;
                                     yyerrok;
                                 }
-#line 719 "Parser.cc"
+#line 720 "Parser.cc"
     break;
 
   case 16: // comm: LIST
-#line 211 "Parser.yy"
+#line 212 "Parser.yy"
                                 {   // =====================================================
                                     size_t i = 1;
                                     for (auto str: *(ProgramDriver.ProgramState->MainBuffer)) {
@@ -727,11 +728,11 @@ namespace yy {
                                     }
                                     CLEAN(ProgramDriver);
                                 }
-#line 731 "Parser.cc"
+#line 732 "Parser.cc"
     break;
 
   case 18: // range_literal: RANGE_WILDCARD
-#line 223 "Parser.yy"
+#line 224 "Parser.yy"
                                 {   // =====================================================
                                     if (!ProgramDriver.Range.Start.has_value()) {
                                         ProgramDriver.Range.Start = 1;
@@ -756,17 +757,23 @@ namespace yy {
                                         }
                                     }
                                 }
-#line 760 "Parser.cc"
+#line 761 "Parser.cc"
     break;
 
   case 19: // range_literal: NUM
-#line 247 "Parser.yy"
+#line 248 "Parser.yy"
                                 {   // =====================================================
+                                    size_t Correction = 1;
+                                    if (!yystack_[0].value.as < size_t > ()) {
+                                        std::cout << "Correcting invalid null index to 1\n";
+                                    } else {
+                                        Correction = yystack_[0].value.as < size_t > ();
+                                    }
                                     if (!ProgramDriver.Range.Start.has_value()) {
-                                        ProgramDriver.Range.Start = yystack_[0].value.as < size_t > ();
+                                        ProgramDriver.Range.Start = Correction;
                                         ProgramDriver.Range.End.reset();
                                     } else if (!ProgramDriver.Range.End.has_value()) {
-                                        ProgramDriver.Range.End = yystack_[0].value.as < size_t > ();
+                                        ProgramDriver.Range.End = Correction;
                                     } else {
                                         std::cout << "Logic error (NUM)\n";
                                         while (true) {
@@ -785,11 +792,11 @@ namespace yy {
                                         }
                                     }
                                 }
-#line 789 "Parser.cc"
+#line 796 "Parser.cc"
     break;
 
 
-#line 793 "Parser.cc"
+#line 800 "Parser.cc"
 
             default:
               break;
@@ -1227,7 +1234,7 @@ namespace yy {
   parser::yyrline_[] =
   {
        0,    58,    58,    59,    62,    63,    66,    67,    70,    75,
-     101,   121,   137,   160,   174,   188,   211,   220,   223,   247
+     101,   121,   138,   161,   175,   189,   212,   221,   224,   248
   };
 
   void
@@ -1259,6 +1266,6 @@ namespace yy {
 
 
 } // yy
-#line 1263 "Parser.cc"
+#line 1270 "Parser.cc"
 
-#line 272 "Parser.yy"
+#line 279 "Parser.yy"
