@@ -1,5 +1,7 @@
 # MED - Mobiusloopfour's Editor
 
+![Image](https://github.com/mobiusloopfour/mle/raw/main/www/00.png)
+
 Med is a simple, easy to use line based text editor.
 Although inspired by `ED(1)`, it is not designed to be compatible
 with it, and does not share the same commands.
