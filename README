@@ -8,7 +8,7 @@ with it, and does not share the same commands.
 
 ## Getting statrted
 
-First, you might want to set up the build system. Run `./autogen.sh && make`. When building using `make`, the executable is built
+First, you might want to set up the build system. Run `./autogen.sh && ./configure && make`. When building using `make`, the executable is built
 in `/src/`. To install it on your system, ensure there are no other programs called `mle`, and type `make install`.
 To uninstall, simply open (or clone and `autogen.sh`) this repository, and type `make uninstall`.
 
