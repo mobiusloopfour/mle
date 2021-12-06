@@ -1,5 +1,5 @@
 AC_INIT([mle],[1.0],[scratch.joint-0i@icloud.com])
-AM_INIT_AUTOMAKE([gnu])
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 
