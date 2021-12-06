@@ -32,3 +32,9 @@ tags
 .DS_Store
 configure
 Makefile.in
+ar-lib
+compile
+depcomp
+install-sh
+missing
+ylwrap
